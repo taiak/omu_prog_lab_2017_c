@@ -20,7 +20,7 @@ int main (int argc, char *argv[]) {
 	/* dosyadaki eleman sayısı */
 	line_count = fgetlinecount (file);
 
-  control = fdeliControl (file, ',', 3, line_count);
+	control = fdeliControl (file, ',', 3, line_count);
 	
 	if (control)
 		csv_error ();
@@ -30,9 +30,9 @@ int main (int argc, char *argv[]) {
 	/* elemanları verilen dosyadan çek*/
 	control = pull_elements (file, stus, line_count);
 
-  /* olası bir hatayı engellemek için */
-  /* eğer çekilemeyen bir satır olursa bunu satır sayısından düş */
-  line_count -= control;
+	/* olası bir hatayı engellemek için */
+	/* eğer çekilemeyen bir satır olursa bunu satır sayısından düş */
+	line_count -= control;
 	
 	/* elemanları sıralat */
 	qsort (stus, line_count, sizeof(STU), compare_for_stu);	
