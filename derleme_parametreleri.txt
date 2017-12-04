@@ -1,0 +1,7 @@
+gcc için:
+
+gcc okul.c -std=c89 -o okul
+
+cc için:
+
+cc okul.c -std=c89 -o okul
