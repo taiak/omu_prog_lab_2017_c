@@ -42,24 +42,26 @@ void stream_control (const FILE * const stream) {
 
 int puts_stu (const STU * const stu) {
 	student_control (stu);
-	printf ("%d %s %s %c\n", stu->semester, stu->name, stu->surname, stu->gender);
-	return 0;
+	int control = -1;
+	/* if printf fail, return negative number */
+	control = printf ("%d %s %s %c\n", stu->semester, stu->name, stu->surname, stu->gender);
+	return (control > 0) ? 0 : 1;
 }
 
 int puts_stu_gender (const STU * const stu, char gender) {
 	student_control (stu);
+	int control = -1;
 	if (toupper (stu->gender) == gender)
-		printf ("%d %s %s\n", stu->semester, stu->name, stu->surname);
-
-  return 0;
+		control = printf ("%d %s %s\n", stu->semester, stu->name, stu->surname);
+	return (control > 0) ? 0 : 1;
 }
 
 int puts_stu_semester (const STU * const stu, char semester) {
 	student_control (stu);
-
+	int control = -1;
 	if (stu->semester == (semester - '0'))
-		printf ("%s %s %c\n", stu->name, stu->surname, stu->gender);
-	return 0;
+		control = printf ("%s %s %c\n", stu->name, stu->surname, stu->gender);
+	return (control > 0) ? 0 : 1;
 }
 
 /* if type k,K,E,e,1,2,3,4 will print stus to screen    */
@@ -89,10 +91,11 @@ int puts_stu_selector (const STU * const stu, char type) {
 
 /* print stus till limit number */
 int puts_stus (const STU * stu, int limit, char type) {
+	int control = 0;
 	while (limit-- > 0)
-		puts_stu_selector (stu++, type);
+		control = puts_stu_selector (stu++, type);
 
-	return 0;
+	return (control > 0) ? 0 : 1;
 }
 
 void free_stu (STU *stu) {
@@ -145,10 +148,10 @@ int compare_for_stu (const void *s1, const void *s2)
 /* dosya açılırsa dosyayı açılmazsa hata döner */
 FILE *read_file (char *file_name) {
 	FILE *file = fopen (file_name, "r");
-	
+/*	
 	if (file == NULL)
 		stu_error (FILE_ERROR_MESSAGE);
-
+*/
 	return file;
 }
 
@@ -231,7 +234,7 @@ int get_stu (FILE *stream, STU *stu, int buff_size, int chr_limit) {
 	/* read line from stream*/
 	fscanf (stream, "%s", line);
 
-  /* split and spill line */
+	/* split and spill line */
 	cp_with_allocate (strtok (line, ","), &(stu->name));
 	cp_with_allocate (strtok (NULL, ","), &(stu->surname));
 	stu->gender   =  *strtok (NULL, ",");
@@ -243,14 +246,14 @@ int get_stu (FILE *stream, STU *stu, int buff_size, int chr_limit) {
 
 /* pull first count element from stream and close stream */
 int pull_elements (FILE *stream, STU *pStu, int count) {
-	int res = 0;
+	int warning_num = 0;
 	stream_control (stream);
 
 	while (count-- > 0) {
 		if (get_stu (stream, pStu++, 100, 7))
-			res++;
+			warning_num++;
 	}
 
 	fclose (stream);
-	return res;
+	return warning;
 }
