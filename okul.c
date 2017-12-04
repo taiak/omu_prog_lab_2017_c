@@ -5,11 +5,15 @@
 #include "okul.h"
 
 int main (int argc, char *argv[]) {
-	FILE * file;
+	FILE *file;
 	int line_count, control;
-	char file_name[] = "okul.csv", arg_char;
+	char file_name[] = "okul.csv";
 
-	control = argument_control (argc, argv[1]);
+	/* puts_stus için arg_char parametresini hazırlar */
+	char arg_char = (argc > 1)? argv[1][0]: 0;
+
+	ANY_STU_ERROR = argument_control (argc, argv[1]);
+	catch_error (NULL);
 
 	/* dosyayı okumaya çalış, ulaşmazsan hata ver */
 	file  = read_file (file_name);
@@ -17,33 +21,30 @@ int main (int argc, char *argv[]) {
 	/* dosyadaki eleman sayısı */
 	line_count = fgetlinecount (file);
 
-  /* dosyada delimiter kontrolü (3 tane ',' ara) yap */
-	control = fdeliControl (file, ',', 3, line_count);
+	/* dosyada delimiter kontrolü (3 tane ',' ara) yap */
+	ANY_STU_ERROR = fdelimitercontrol (file, ',', 3, line_count);
 
-  /* delimiter okumada problem varsa hata ver ve çık */
-	if (control)
-		stu_error (CSV_ERROR_MESSAGE);
-
-  /* öğrenci dizisini oluştur */
-	STU stus[line_count];
+	/* delimiter okumada problem varsa hata ver ve çık */
+	catch_error ("Hata: CSV formatı hatalı!");
+ 
+	/* öğrenci dizisini oluştur */
+	STUDENT stus[line_count];
 
 	/* elemanları verilen dosyadan çek*/
-	control = pull_elements (file, stus, line_count);
+	ANY_STU_ERROR = pull_elements (file, stus, line_count);
+	catch_error ("HATA: CSV'deki dosyalar okunurken bir hatayla karşılaşıldı!");
 
-	/* olası bir hatayı engellemek için */
-	/* eğer çekilemeyen bir satır olursa bunu satır sayısından düş */
-	line_count -= control;
-	
 	/* elemanları sıralat */
-	qsort (stus, line_count, sizeof(STU), compare_for_stu);
-	
-	/* puts stu için arg_char parametresini hazırlar */
-	arg_char = (argc > 1)? argv[1][0]: 0;
+	qsort (stus, line_count, sizeof(STUDENT), compare_for_stu);
+	catch_error (NULL);
 
 	/* verilen elemanları eleman sayısınca ekrana bas */
-	puts_stus (stus, line_count, arg_char);
-
+	ANY_STU_ERROR = puts_stus (stus, line_count, arg_char);
+	catch_error (NULL);
+  
 	/* bellekten alınan yeri geri ver */
 	free_stus (stus, line_count);
+	catch_error (NULL);
+
 	return 0;
 }
