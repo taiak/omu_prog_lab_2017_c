@@ -255,5 +255,5 @@ int pull_elements (FILE *stream, STU *pStu, int count) {
 	}
 
 	fclose (stream);
-	return warning;
+	return warning_num;
 }
