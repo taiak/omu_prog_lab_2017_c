@@ -17,6 +17,7 @@ int main (int argc, char *argv[]) {
 
 	/* dosyayı okumaya çalış, ulaşmazsan hata ver */
 	file  = read_file (file_name);
+  catch_error (NULL);
 
 	/* dosyadaki eleman sayısı */
 	line_count = fgetlinecount (file);
