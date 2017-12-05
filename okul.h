@@ -181,10 +181,8 @@ int compare_for_stu (const void *s1, const void *s2)
 FILE *read_file (char *file_name) {
 	FILE *file = fopen (file_name, "r");
 
-	if (file == NULL) {
+	if (file == NULL)
 		stu_error ("Hata: Verilen dosya bulunamadı!");
-		exit (EXIT_FAILURE);
-	}
 
 	return file;
 }
