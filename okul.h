@@ -190,7 +190,7 @@ FILE *read_file (char *file_name) {
 
 /* argument controller for okul.c */
 int argument_control (int argc, char *argv) {
-	int val = 0, control = 0;
+	int val = 0;
 	/* argument number control */
 	if (2 < argc || argc < 1) {
 		stu_error ("Hata: sadece bir argüman girebilirsiniz!");
@@ -203,7 +203,7 @@ int argument_control (int argc, char *argv) {
 			unknown_arg_error (argv);
 			return 2;
 		}
-		/* eğer değer varsa tek karaktere ata */
+		/* only one character acceptable */
 		val = *argv;
 	}
 
