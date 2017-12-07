@@ -31,7 +31,7 @@ void catch_error (const char *err_msg) {
 	}
 }
 
-void unknown_arg_error (char *arg) {
+void unknown_argument_error (char *arg) {
 	fprintf (stderr, "Hata: tanınmayan argüman: %s\n", arg);
 	ANY_STU_ERROR += 1;
 }
@@ -58,7 +58,7 @@ int buffer_off (char **buffer_name) {
 		free (*buffer_name);
 }
 
-int puts_stu (const STUDENT * const stu, char *out) {
+int student (const STUDENT * const stu, char *out) {
 	student_control (stu);
 	int control = -1;
 	/* if printf fail, it return negative number */
@@ -71,7 +71,7 @@ int puts_stu (const STUDENT * const stu, char *out) {
 	return check_control (control);
 }
 
-int puts_stu_gender (const STUDENT * const stu, char gender, char *out) {
+int student_gender (const STUDENT * const stu, char gender, char *out) {
 	student_control (stu);
 
 	int control = -1;
@@ -79,14 +79,14 @@ int puts_stu_gender (const STUDENT * const stu, char gender, char *out) {
 	/* if printf fail, it return negative number */
 	if (out == NULL)
 		stu_error ("Hata: Verilen dizge geçersiz!");
-	else if (toupper (stu->gender) == gender)
+	else if (toupper (stu->gender) == toupper (gender))
 		control = sprintf (out, "%d %s %s\n", stu->semester, 
 					stu->name, stu->surname);
 
 	return check_control (control);
 }
 
-int puts_stu_semester (const STUDENT * const stu, char semester, char *out) {
+int student_semester (const STUDENT * const stu, char semester, char *out) {
 	student_control (stu);
 
 	int control = -1;
@@ -104,7 +104,7 @@ int puts_stu_semester (const STUDENT * const stu, char semester, char *out) {
 /* if type k,K,E,e,1,2,3,4 will return stus to screen    */
 /* if type is 0, so print stus without any property     */
 /* if type don't have type, print nothing and return -1  */
-int puts_stu_selector (const STUDENT * const stu, char type, char *out) {
+int student_selector (const STUDENT * const stu, char type, char *out) {
 	int result = -1;
 	student_control (stu);
 	type = toupper (type);
@@ -112,30 +112,30 @@ int puts_stu_selector (const STUDENT * const stu, char type, char *out) {
 	switch (type) {
 		case 'K':
 		case 'E':
-			result = puts_stu_gender (stu, type, out);
+			result = student_gender (stu, type, out);
 			break;
 		case '1':
 		case '2':
 		case '3':
 		case '4':
-			result = puts_stu_semester (stu, type, out);
+			result = student_semester (stu, type, out);
 			break;
 		default:
-			result = puts_stu (stu, out);
+			result = student (stu, out);
 			break;
 	}
 	return result;
 }
 
 /* print stus till limit number */
-int puts_stus (const STUDENT * stu, int limit, char type) {
+int puts_students (const STUDENT * stu, int limit, char type) {
 	student_control (stu);
 	buffer_on (&puts_buffer, PUTS_BUFFER_LIMIT);
 
 	int control = 0;
   
 	while (limit-- > 0 && stu != NULL) {
-		control = puts_stu_selector (stu++, type, puts_buffer);
+		control = student_selector (stu++, type, puts_buffer);
 
 		if (control == 0)
 			printf("%s", puts_buffer);
@@ -226,7 +226,7 @@ int argument_control (int argc, char *argv) {
 	/* argument size control */
 	if (argc == 2) { 
 		if (strlen (argv) != 1) {
-			unknown_arg_error (argv);
+			unknown_argument_error (argv);
 			return 2;
 		}
 		/* eğer değer varsa tek karaktere ata */
@@ -241,7 +241,7 @@ int argument_control (int argc, char *argv) {
 
 	/* E, e, k , K ? */
 	if (isalpha (val) && (val != 'k' && val != 'e' && val != 'K' && val != 'E')) {
-		unknown_arg_error (argv);
+		unknown_argument_error (argv);
 		return 4;
 	}
 
