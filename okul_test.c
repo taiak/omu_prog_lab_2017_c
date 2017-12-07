@@ -6,7 +6,7 @@
 #include "minunit.h"
 
 FILE *file;
-int line_count, control;
+int line_count;
 STUDENT stus[23];
 STUDENT student1 = {"Ibrahim", "Avcu", 'e', 1};
 STUDENT student2 = {"Ibrahim", "Avcu", 'e', 1};
@@ -16,6 +16,7 @@ STUDENT student5 = {"Erkan", "Gunduz", 'e', 4};
 
 void test_setup (void) {
 	file  = read_file ("okul.csv");
+	line_count = fgetlinecount (file);
 }
 
 void test_teardown (void) {
@@ -77,8 +78,8 @@ MU_TEST (checkcollusion) {
 
 MU_TEST (puts_test) {
 	fprintf (stderr, "\n->Çıktı karşılaştırma fonksiyonu hataları:\n\n");
-  buffer_on (&puts_buffer, PUTS_BUFFER_LIMIT);
-  
+	buffer_on (&puts_buffer, PUTS_BUFFER_LIMIT);
+	
 	/* başarısızlar */
 	student_gender (&student1, 'k', puts_buffer);
 	mu_assert_string_eq ("", puts_buffer);
