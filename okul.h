@@ -1,9 +1,14 @@
 /************************************/
 /*  name: okul.h  date: 2017        */
 /************************************/
-#define PUTS_BUFFER_LIMIT         100
-#define READ_BUFFER_LIMIT         100
-#define check_control(control)    (control >= 0)?0:-1
+#define PUTS_BUFFER_LIMIT        100
+#define READ_BUFFER_LIMIT        100
+#define check_control(control)   (control >= 0)?0:-1
+#define stream_control(stream)   if (stream == NULL){ stu_error ("Hata: Akış bulunamadı!");return -1; }
+#define buffer_control(buffer)   if (buffer == NULL){ stu_error ("Hata: Bellekten yer almada sorun yaşandı!");return -1; }
+#define student_control(stu)     if (stu == NULL){ stu_error ("Hata: Öğrenci bulunamadı!");return -1; }
+#define buffer_on(name, limit)   *name = (char *) calloc (limit, sizeof (char))
+#define buffer_off(name)         	if (name != NULL){ if (*name != NULL) free(*name); }
 
 int ANY_STU_ERROR = 0;
 char *read_buffer;
@@ -36,32 +41,10 @@ void unknown_argument_error (char *arg) {
 	ANY_STU_ERROR += 1;
 }
 
-void student_control (const STUDENT * const stu) {
-	if (stu == NULL)
-		stu_error ("Hata: Öğrenci bulunamadı!");
-}
-
-void stream_control (const FILE * const stream) {
-	if (stream == NULL)
-		stu_error ("Hata: Herhangi bir akış bulunamadı!");
-}
-
-/* activate buffer */
-int buffer_on (char **buffer_name, int buffer_limit) {
-	*buffer_name = (char *) calloc (buffer_limit, sizeof (char));
-}
-
-/* free buffer */
-int buffer_off (char **buffer_name) {
-	if (buffer_name != NULL)
-		if (*buffer_name != NULL)
-		free (*buffer_name);
-}
-
 int student (const STUDENT * const stu, char *out) {
 	student_control (stu);
 	int control = -1;
-	/* if printf fail, it return negative number */
+
 	if (out == NULL)
 		stu_error ("Hata: Verilen dizge geçersiz!");
 	else
@@ -72,9 +55,8 @@ int student (const STUDENT * const stu, char *out) {
 }
 
 int student_gender (const STUDENT * const stu, char gender, char *out) {
-	student_control (stu);
-
 	int control = -1;
+	student_control (stu);
 
 	/* if printf fail, it return negative number */
 	if (out == NULL)
@@ -87,10 +69,8 @@ int student_gender (const STUDENT * const stu, char gender, char *out) {
 }
 
 int student_semester (const STUDENT * const stu, char semester, char *out) {
-	student_control (stu);
-
 	int control = -1;
-		/* if printf fail, it return negative number */
+	student_control (stu);
 
 	if (out == NULL)
 		stu_error ("Hata: Verilen dizge geçersiz!");
@@ -133,7 +113,7 @@ int puts_students (const STUDENT * stu, int limit, char type) {
 	buffer_on (&puts_buffer, PUTS_BUFFER_LIMIT);
 
 	int control = 0;
-  
+	
 	while (limit-- > 0 && stu != NULL) {
 		control = student_selector (stu++, type, puts_buffer);
 
@@ -141,15 +121,12 @@ int puts_students (const STUDENT * stu, int limit, char type) {
 			printf("%s", puts_buffer);
 	}
 
-  buffer_off (&puts_buffer);
+	buffer_off (&puts_buffer);
 	return control;
 }
 
 int free_stu (STUDENT *stu) {
 	student_control (stu);
-	if (ANY_STU_ERROR) {
-		return 1;
-	}
 
 	if (stu->name != NULL)
 		free (stu->name);
@@ -164,9 +141,6 @@ int free_stu (STUDENT *stu) {
 int free_stus (STUDENT *stu, int n) {
 	int control = 0;
 	student_control (stu);
-
-	if (ANY_STU_ERROR)
-		return 1;
 
 	while (n-- > 0 && stu != NULL && !control)
 		control += free_stu (stu++);
@@ -267,9 +241,6 @@ int cp_with_allocate (char *token, char **dest) {
 int get_stu (FILE *stream, char *read_buff) {
 	stream_control (stream);
 	
-	if (ANY_STU_ERROR)
-		return 1;
-	
 	/* read line from stream and write into read_buffer*/
 	if( !fscanf (stream, "%s", read_buff) ) {
 		stu_error ("Hata: Akıştan veri okumada sorun yaşandı!");
@@ -296,10 +267,7 @@ int pull_elements (FILE *stream, STUDENT *pStu, int count) {
 	/* open buffer for read */
 	buffer_on (&read_buffer, READ_BUFFER_LIMIT);
 
-	if (read_buffer == NULL) {
-		stu_error ("Hata: Bellekten yer almada sorun yaşandı!");
-		return 1;
-	}
+	buffer_control (read_buffer);
 
 	while (count-- > 0) {
 		if (get_stu (stream, read_buffer) || chomp_into_stu (pStu++))
