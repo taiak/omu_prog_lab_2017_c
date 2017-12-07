@@ -1,11 +1,13 @@
 /************************************/
 /*  name: okul.h  date: 2017        */
 /************************************/
-#define BUFF_LIMIT                100
-#define check_control(control)    (control > 0)?0:-1
+#define PUTS_BUFFER_LIMIT         100
+#define READ_BUFFER_LIMIT         100
+#define check_control(control)    (control >= 0)?0:-1
 
 int ANY_STU_ERROR = 0;
 char *read_buffer;
+char *puts_buffer;
 
 typedef struct student STUDENT;
 
@@ -44,63 +46,82 @@ void stream_control (const FILE * const stream) {
 		stu_error ("Hata: Herhangi bir akış bulunamadı!");
 }
 
-int puts_stu (const STUDENT * const stu) {
+/* activate buffer */
+int buffer_on (char **buffer_name, int buffer_limit) {
+	*buffer_name = (char *) malloc (buffer_limit * sizeof (char));
+}
+
+/* free buffer */
+int buffer_off (char **buffer_name) {
+	if (buffer_name != NULL)
+		if (*buffer_name != NULL)
+		free (*buffer_name);
+}
+
+int puts_stu (const STUDENT * const stu, char *out) {
 	student_control (stu);
 	int control = -1;
 	/* if printf fail, it return negative number */
-	control = printf ("%d %s %s %c\n", stu->semester, stu->name,
+	if (out == NULL)
+		stu_error ("Hata: Verilen dizge geçersiz!");
+	else
+		control = sprintf (out, "%d %s %s %c\n", stu->semester, stu->name,
 					stu->surname, stu->gender);
 
 	return check_control (control);
 }
 
-int puts_stu_gender (const STUDENT * const stu, char gender) {
+int puts_stu_gender (const STUDENT * const stu, char gender, char *out) {
 	student_control (stu);
 
 	int control = -1;
 
 	/* if printf fail, it return negative number */
-	if (toupper (stu->gender) == gender)
-		control = printf ("%d %s %s\n", stu->semester, 
+	if (out == NULL)
+		stu_error ("Hata: Verilen dizge geçersiz!");
+	else if (toupper (stu->gender) == gender)
+		control = sprintf (out, "%d %s %s\n", stu->semester, 
 					stu->name, stu->surname);
 
 	return check_control (control);
 }
 
-int puts_stu_semester (const STUDENT * const stu, char semester) {
+int puts_stu_semester (const STUDENT * const stu, char semester, char *out) {
 	student_control (stu);
 
 	int control = -1;
+		/* if printf fail, it return negative number */
 
-	/* if printf fail, it return negative number */
-	if (stu->semester == (semester - '0'))
-		control = printf ("%s %s %c\n", stu->name,
+	if (out == NULL)
+		stu_error ("Hata: Verilen dizge geçersiz!");
+	else if (stu->semester == (semester - '0'))
+		control = sprintf (out, "%s %s %c\n", stu->name,
 					stu->surname, stu->gender);
 
 	return check_control (control);
 }
 
-/* if type k,K,E,e,1,2,3,4 will print stus to screen    */
+/* if type k,K,E,e,1,2,3,4 will return stus to screen    */
 /* if type is 0, so print stus without any property     */
 /* if type don't have type, print nothing and return -1  */
-int puts_stu_selector (const STUDENT * const stu, char type) {
+int puts_stu_selector (const STUDENT * const stu, char type, char *out) {
 	int result = -1;
-	student_control (stu);  
+	student_control (stu);
 	type = toupper (type);
 
 	switch (type) {
 		case 'K':
 		case 'E':
-			result = puts_stu_gender (stu, type);
+			result = puts_stu_gender (stu, type, out);
 			break;
 		case '1':
 		case '2':
 		case '3':
 		case '4':
-			result = puts_stu_semester (stu, type);
+			result = puts_stu_semester (stu, type, out);
 			break;
 		default:
-			result = puts_stu (stu);
+			result = puts_stu (stu, out);
 			break;
 	}
 	return result;
@@ -109,13 +130,18 @@ int puts_stu_selector (const STUDENT * const stu, char type) {
 /* print stus till limit number */
 int puts_stus (const STUDENT * stu, int limit, char type) {
 	student_control (stu);
+	buffer_on (&puts_buffer, PUTS_BUFFER_LIMIT);
 
 	int control = 0;
+  
+	while (limit-- > 0 && stu != NULL) {
+		control = puts_stu_selector (stu++, type, puts_buffer);
 
-	while (limit-- > 0 && stu != NULL){
-		control = puts_stu_selector (stu++, type);
+		if (control == 0)
+			printf("%s", puts_buffer);
 	}
 
+  buffer_off (&puts_buffer);
 	return control;
 }
 
@@ -177,7 +203,7 @@ int compare_for_stu (const void *s1, const void *s2)
 	return result;
 }
 
-/* dosya açılırsa dosyayı açılmazsa hata döner */
+/* return file or NULL */
 FILE *read_file (const char * const file_name) {
 	FILE *file = fopen (file_name, "r");
 
@@ -203,7 +229,7 @@ int argument_control (int argc, char *argv) {
 			unknown_arg_error (argv);
 			return 2;
 		}
-		/* only one character acceptable */
+		/* eğer değer varsa tek karaktere ata */
 		val = *argv;
 	}
 
@@ -238,14 +264,14 @@ int cp_with_allocate (char *token, char **dest) {
 }
 
 /* get a stu from stream */
-int get_stu (FILE *stream) {
+int get_stu (FILE *stream, char *read_buff) {
 	stream_control (stream);
 	
 	if (ANY_STU_ERROR)
 		return 1;
 	
 	/* read line from stream and write into read_buffer*/
-	if( !fscanf (stream, "%s", read_buffer) ) {
+	if( !fscanf (stream, "%s", read_buff) ) {
 		stu_error ("Hata: Akıştan veri okumada sorun yaşandı!");
 		return 2;
 	}
@@ -262,21 +288,13 @@ int chomp_into_stu (STUDENT* stu) {
 
 	return control;
 }
-/* activate buffer */
-int buffer_on () {
-	read_buffer = (char *) malloc (BUFF_LIMIT * sizeof (char));
-}
-/* free buffer */
-int buffer_off () {
-	free (read_buffer);
-}
 
 /* pull first count element from stream and close stream */
 int pull_elements (FILE *stream, STUDENT *pStu, int count) {
 	int warning = 0;
 	stream_control (stream);
 	/* open buffer for read */
-	buffer_on ();
+	buffer_on (&read_buffer, READ_BUFFER_LIMIT);
 
 	if (read_buffer == NULL) {
 		stu_error ("Hata: Bellekten yer almada sorun yaşandı!");
@@ -284,15 +302,16 @@ int pull_elements (FILE *stream, STUDENT *pStu, int count) {
 	}
 
 	while (count-- > 0) {
-		if (get_stu (stream) || chomp_into_stu (pStu++))
+		if (get_stu (stream, read_buffer) || chomp_into_stu (pStu++))
 			warning++;
 	}
 
 	/* close read buffer */
-	buffer_off ();
+	buffer_off (&read_buffer);
 	fclose (stream);
 	return warning;
 }
+
 /* get line count from stream */
 int fgetlinecount (FILE *stream){
 	int line_count = 1, chr = 'y';
