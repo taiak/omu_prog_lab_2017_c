@@ -48,7 +48,7 @@ void stream_control (const FILE * const stream) {
 
 /* activate buffer */
 int buffer_on (char **buffer_name, int buffer_limit) {
-	*buffer_name = (char *) malloc (buffer_limit * sizeof (char));
+	*buffer_name = (char *) calloc (buffer_limit, sizeof (char));
 }
 
 /* free buffer */
