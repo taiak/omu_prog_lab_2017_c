@@ -48,7 +48,7 @@ MU_TEST (argument_controlling) {
 	/* geçersiz harf */
 	mu_assert_int_eq (4, argument_control (2, "u"));
 
-	/* calisan parametreler */
+	/* basarili parametreler */
 	mu_assert_int_eq (0, argument_control (1, NULL));
 	mu_assert_int_eq (0, argument_control (2, "e"));
 	mu_assert_int_eq (0, argument_control (2, "k"));
@@ -70,7 +70,7 @@ MU_TEST (checkcollusion) {
 	mu_assert_int_eq (0, compare_for_stu  (&student1, &student2));
 
 	/* student3 < student2 ise */
-	mu_assert_int_eq (-1, compare_for_stu  (&student2, &student3));
+	mu_assert_int_eq (-1, compare_for_stu (&student2, &student3));
 
 	/* student4 > student3 ise */
 	mu_assert_int_eq (1, compare_for_stu  (&student4, &student3));	
@@ -81,26 +81,26 @@ MU_TEST (puts_test) {
 	buffer_on (&puts_buffer, PUTS_BUFFER_LIMIT);
 	
 	/* başarısızlar */
-	student_gender (&student1, 'k', puts_buffer);
+	mu_assert_int_eq (-1, student_gender (&student1, puts_buffer, 'k'));
 	mu_assert_string_eq ("", puts_buffer);
 
-	student_semester (&student2, '2', puts_buffer);
+	mu_assert_int_eq (-1, student_semester (&student2, puts_buffer, '2'));
 	mu_assert_string_eq ("", puts_buffer);
 
-	student_semester (&student2, 1, puts_buffer);
+	mu_assert_int_eq (-1, student_semester (&student2, puts_buffer, 1));
 	mu_assert_string_eq ("", puts_buffer);
 
 	/* başarılılar */
-	student (&student1, puts_buffer);
+	mu_assert_int_eq (0, student (&student1, puts_buffer));
 	mu_assert_string_eq ("1 Ibrahim Avcu e\n", puts_buffer);
 
-	student_gender (&student3, 'e', puts_buffer);
+	mu_assert_int_eq (0, student_gender (&student3, puts_buffer, 'e'));
 	mu_assert_string_eq ("2 Yasir Kiroglu\n", puts_buffer);
 
-	student_gender (&student4, 'k', puts_buffer);
+	mu_assert_int_eq (0, student_gender (&student4, puts_buffer, 'k'));
 	mu_assert_string_eq ("3 Hulya Macaroglu\n", puts_buffer);
 
-	student_semester (&student5, '4', puts_buffer);
+	mu_assert_int_eq (0, student_semester (&student5, puts_buffer, '4'));
 	mu_assert_string_eq ("Erkan Gunduz e\n", puts_buffer);
 
 	buffer_off (&puts_buffer);
