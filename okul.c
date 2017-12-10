@@ -17,7 +17,7 @@ int main (int argc, char *argv[]) {
 
 	/* dosyayı okumaya çalış, ulaşmazsan hata ver */
 	file  = read_file (file_name);
-  catch_error (NULL);
+	catch_error (NULL);
 
 	/* dosyadaki eleman sayısı */
 	line_count = fgetlinecount (file);
@@ -40,7 +40,7 @@ int main (int argc, char *argv[]) {
 	catch_error (NULL);
 
 	/* verilen elemanları eleman sayısınca ekrana bas */
-	ANY_STU_ERROR = puts_stus (stus, line_count, arg_char);
+	ANY_STU_ERROR = puts_students (stus, line_count, arg_char);
 	catch_error (NULL);
   
 	/* bellekten alınan yeri geri ver */
